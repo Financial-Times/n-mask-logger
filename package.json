@@ -1,0 +1,12 @@
+{
+  "name": "@financial-times/n-encrypted-logger",
+  "main": "main.js",
+  "dependencies": {
+    "haikro": "^2.2.0"
+  },
+  "devDependencies": {
+  },
+  "engines": {
+    "node": "5.10.1"
+  }
+}

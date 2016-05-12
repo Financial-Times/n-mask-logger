@@ -1,0 +1,7 @@
+/node_modules/
+.idea/
+devs.json
+npm-debug.log
+.eslintrc.js
+.editorconfig
+node-*
