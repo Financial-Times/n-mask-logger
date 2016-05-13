@@ -26,8 +26,7 @@ const config = {
 		'no-var': 1,
 		'space-before-function-paren': [1, 'always'],
 		'strict': [1, 'global'],
-		'no-console': 1,
-		'ecmaFeatures': { modules: true }
+		'no-console': 1
 	},
 	'globals': {
 		'fetch': true,
