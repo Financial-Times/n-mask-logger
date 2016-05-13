@@ -1,5 +1,5 @@
 {
-  "name": "n-safe-logger",
+  "name": "@financial-times/n-safe-logger",
   "main": "main.js",
   "dependencies": {
     "haikro": "^2.2.0"
