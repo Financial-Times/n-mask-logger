@@ -1,9 +1,14 @@
 {
-  "name": "@financial-times/n-encrypted-logger",
+  "name": "@financial-times/n-safe-logger",
   "main": "main.js",
   "dependencies": {
     "haikro": "^2.2.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Financial-Times/n-safe-logger.git"
+  },
+  "license": "MIT",
   "devDependencies": {
   },
   "engines": {

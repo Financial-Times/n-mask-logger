@@ -1,2 +1,2 @@
-# n-encrypted-logger
-Version of @financial-times/n-logger that encrypts sensitive fields
+# n-safe-logger
+Wrapper for @financial-times/n-logger that masks sensitive fields
