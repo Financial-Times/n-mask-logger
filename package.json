@@ -1,5 +1,5 @@
 {
-  "name": "@financial-times/n-safe-logger",
+  "name": "n-safe-logger",
   "main": "main.js",
   "dependencies": {
     "haikro": "^2.2.0"
@@ -10,6 +10,9 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "eslint": "^2.9.0",
+    "haikro": "^2.3.2",
+    "lintspaces-cli": "^0.1.1"
   },
   "engines": {
     "node": "5.10.1"
