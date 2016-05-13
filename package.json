@@ -10,8 +10,12 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "eslint": "^2.9.0",
+    "haikro": "^2.3.2",
+    "lintspaces-cli": "^0.1.1"
   },
   "engines": {
     "node": "5.10.1"
-  }
+  },
+  "version": "1.0.0"
 }
