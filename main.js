@@ -36,5 +36,4 @@ class SafeLogger {
 		logger.info('maskedMessage', maskedMessage);
 	}
 }
-
 export default SafeLogger;
