@@ -1,0 +1,11 @@
+/.babelrc
+/.editorconfig
+/.eslintrc.json
+/.gitignore
+/circle.yml
+/ft.yml
+/Makefile
+
+/.idea/
+/src/
+/test/
