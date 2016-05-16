@@ -1,0 +1,5 @@
+describe('Logger', () => {
+
+	describe('Logging', () => {
+	})
+});
