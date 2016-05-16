@@ -1,9 +1,7 @@
 // import sinon from 'sinon';
 import chai from 'chai';
 const expect = chai.expect;
-import chaiString from 'chai-string';
 chai.should();
-chai.use(chaiString);
 import SafeLogger from '../src/main';
 
 describe('Logger', () => {
@@ -101,5 +99,16 @@ describe('Logger', () => {
 			const message = logger.info(null);
 			JSON.stringify(message).should.equal('"null"');
 		});
+
+		it('MULTI: Should log multiple strings', () => {
+			const message = logger.info('something', 'other', 'that');
+			message.should.equal('something other that');
+		});
+
+		it('MULTI: Should log mix of strings and objects', () => {
+			const message = logger.info('something', {other: {this:'that'}}, null, 'something else');
+			message.should.equal('something {"other":{"this":"that"}} null something else');
+		});
+
 	})
 });

@@ -8,38 +8,46 @@ class SafeLogger {
 		this.sensitiveFields = sensitiveFields;
 	}
 
-	info (message) {
-		return this.log('info', message);
+	info (...args) {
+		return this.log('info', ...args);
 	}
 
-	warn (message) {
-		return this.log('warn', message);
+	warn (...args) {
+		return this.log('warn', ...args);
 	}
 
-	error (message) {
-		return this.log('error', message);
+	error (...args) {
+		return this.log('error', ...args);
 	}
 
-	log (type, message) {
+	log (type, ...messages) {
 		let maskedMessage;
 
-		if (typeof message === 'object') {
-			maskedMessage = {};
-			maskedMessage = this.maskMessage(message);
-			logger.info(JSON.stringify(maskedMessage));
-			return JSON.stringify(maskedMessage);
-		}
-		else {
-			maskedMessage = message;
-			for (const field of this.sensitiveFields) {
-				if (message.indexOf(field) !== -1) {
-					maskedMessage = MASK_SEQUENCE;
-					break;
-				}
+		let result = [];
+
+		for (const message of messages) {
+			if (typeof message === 'object') {
+				maskedMessage = {};
+				maskedMessage = this.maskMessage(message);
+				result.push(JSON.stringify(maskedMessage));
 			}
-			logger[type](maskedMessage);
-			return maskedMessage;
+			else {
+				maskedMessage = message;
+				for (const field of this.sensitiveFields) {
+					if (message.indexOf(field) !== -1) {
+						maskedMessage = MASK_SEQUENCE;
+						break;
+					}
+				}
+				result.push(maskedMessage);
+			}
 		}
+
+		const resultStr = result.join(' ');
+
+		logger[type](resultStr);
+		return resultStr;
+
 	}
 
 	maskMessage (message) {
