@@ -87,7 +87,7 @@ Output:
 ```
 
 #### Exceptions
-Some level of vigilance is still required when using the logger, as the following would inevitably log a sensitive field in clear text.
+Some level of vigilance is still required when using `n-mask-logger`, as the following would inevitably output a sensitive field in clear text:
 ```javascript
 const logger = new MaskLogger(['email', 'password']);
 
