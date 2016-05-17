@@ -100,6 +100,21 @@ describe('Logger', () => {
 			JSON.stringify(message).should.equal('"null"');
 		});
 
+		it('EMPTY: Should log object with empty values', () => {
+			const message = logger.info({
+				some: 'value',
+				nullVal: null,
+				emptyVal: '',
+				falseVal: false,
+				trueVal: true,
+				objVal: {},
+				fcnVal: function () {},
+				numVal: 32,
+				zeroVal: 0
+			});
+			message.should.equal('{\"some\":\"value\",\"nullVal\":null,\"emptyVal\":\"\",\"falseVal\":false,\"trueVal\":true,\"objVal\":{},"numVal":32,"zeroVal":0}');
+		});
+
 		it('MULTI: Should log multiple strings', () => {
 			const message = logger.info('something', 'other', 'that');
 			message.should.equal('something other that');
