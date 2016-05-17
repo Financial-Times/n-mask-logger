@@ -1,6 +1,6 @@
 # n-mask-logger [![Circle CI](https://circleci.com/gh/Financial-Times/n-mask-logger.svg?style=svg)](https://circleci.com/gh/Financial-Times/n-mask-logger)
 
-Wrapper for @financial-times/n-logger that masks sensitive fields
+Wrapper for [n-logger](https://github.com/Financial-Times/n-logger) that masks sensitive fields
 
 ## Installation
 
@@ -8,12 +8,12 @@ Wrapper for @financial-times/n-logger that masks sensitive fields
 
 ## Usage Examples
 
-Import `n-mask-logger`, initialize it with an array of sensitive field names, use the new instance as you would `@financial-times/n-logger`:
+Import `n-mask-logger`, initialize it with an array of sensitive field names and use the new instance as you would [n-logger](https://github.com/Financial-Times/n-logger):
 
 ```javascript
 import MaskLogger from '@financial-times/n-mask-logger';
 const logger = new MaskLogger(ARRAY_OF_FIELD_NAMES_TO_MASK);
-logger.info(...)
+logger.info(...);
 ```
 
 Logging levels `info`, `warning`, `error` are supported.
@@ -86,7 +86,8 @@ Output:
 > *****
 ```
 
-#### Logging Exceptions
+#### Exceptions
+Some level of vigilance is required when using the logger, as the following would log a sensitive field in clear text.
 ```javascript
 const logger = new MaskLogger(['email', 'password']);
 
