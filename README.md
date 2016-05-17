@@ -6,7 +6,7 @@ Wrapper for [n-logger](https://github.com/Financial-Times/n-logger) that masks s
 
     npm install @financial-times/n-mask-logger
 
-## Usage Examples
+## Usage
 
 Import `n-mask-logger`, initialize it with an array of sensitive field names and use the new instance as you would [n-logger](https://github.com/Financial-Times/n-logger):
 
@@ -14,6 +14,7 @@ Import `n-mask-logger`, initialize it with an array of sensitive field names and
 import MaskLogger from '@financial-times/n-mask-logger';
 const logger = new MaskLogger(ARRAY_OF_FIELD_NAMES_TO_MASK);
 logger.info(...);
+> 
 ```
 
 Logging levels `info`, `warning`, `error` are supported.
@@ -34,7 +35,7 @@ logger.info(user);
 ```
 Output:
 ```javascript
-> {name:"L.Ogger",age:32,email:"*****",password:"*****",role:"Developer"}
+> {name:"L. Ogger",age:32,email:"*****",password:"*****",role:"Developer"}
 ```
 
 ### Logging Nested Objects
@@ -65,7 +66,7 @@ Besides masking object fields `n-mask-logger` will attempt to mask strings that 
 const logger = new MaskLogger(['email', 'password']);
 
 const innocuous = 'I am a safe string';
-logger.info(innocouous);
+logger.info(innocuous);
 ```
 Output:
 ```javascript
