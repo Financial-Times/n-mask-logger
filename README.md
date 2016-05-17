@@ -87,7 +87,7 @@ Output:
 ```
 
 #### Exceptions
-Some level of vigilance is required when using the logger, as the following would log a sensitive field in clear text.
+Some level of vigilance is still required when using the logger, as the following would inevitably log a sensitive field in clear text.
 ```javascript
 const logger = new MaskLogger(['email', 'password']);
 
