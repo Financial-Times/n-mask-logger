@@ -1,12 +1,12 @@
 {
-  "name": "n-safe-logger",
+  "name": "@financial-times/n-mask-logger",
   "main": "build/main.js",
   "dependencies": {
     "@financial-times/n-logger": "^5.3.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Financial-Times/n-safe-logger.git"
+    "url": "https://github.com/Financial-Times/n-mask-logger.git"
   },
   "license": "MIT",
   "devDependencies": {
