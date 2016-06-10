@@ -70,7 +70,7 @@ class SafeLogger {
 					else {
 						// Does the VALUE of a safe KEY contain a sensitive word in itself?
 						for (const sensitiveField of this.sensitiveFields) {
-							if (message[field] && message[field].length && message[field].length > 0 && message[field].indexOf && message[field].indexOf(sensitiveField) !== -1) {
+							if (message[field] && typeof message[field] === 'string' && message[field].length > 0 && message[field].indexOf(sensitiveField) !== -1) {
 								clonedMessage[field] = MASK_SEQUENCE;
 								break;
 							}
