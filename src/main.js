@@ -42,6 +42,10 @@ class SafeLogger {
 					}
 					result.push(maskedMessage);
 				}
+			} else if (message === '') {
+				result.push(message);
+			} else {
+				result.push('null');
 			}
 		}
 
