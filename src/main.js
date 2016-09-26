@@ -26,20 +26,26 @@ class SafeLogger {
 		let result = [];
 
 		for (const message of messages) {
-			if (typeof message === 'object') {
-				maskedMessage = {};
-				maskedMessage = this.maskMessage(message);
-				result.push(JSON.stringify(maskedMessage));
-			}
-			else {
-				maskedMessage = message;
-				for (const field of this.sensitiveFields) {
-					if (message.indexOf(field) !== -1) {
-						maskedMessage = MASK_SEQUENCE;
-						break;
-					}
+			if (message) {
+				if (typeof message === 'object') {
+					maskedMessage = {};
+					maskedMessage = this.maskMessage(message);
+					result.push(JSON.stringify(maskedMessage));
 				}
-				result.push(maskedMessage);
+				else {
+					maskedMessage = message;
+					for (const field of this.sensitiveFields) {
+						if (message.indexOf(field) !== -1) {
+							maskedMessage = MASK_SEQUENCE;
+							break;
+						}
+					}
+					result.push(maskedMessage);
+				}
+			} else if (message === '') {
+				result.push(message);
+			} else {
+				result.push('null');
 			}
 		}
 
