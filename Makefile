@@ -1,18 +1,4 @@
-# TODO n.Makefile & nht
-
-.PHONY: test
-
-clean:
-	git clean -fxd
-
-install:
-	@echo "Installing…"
-	@npm install
-
-verify:
-	@echo "Verifying…"
-	@find ./src ./test -type f -exec ./node_modules/.bin/lintspaces -e .editorconfig -i js-comments {} + &&\
-	./node_modules/.bin/eslint -c ./.eslintrc.js ./src ./test
+include n.Makefile
 
 unit-test:
 	@echo "Unit Testing…"

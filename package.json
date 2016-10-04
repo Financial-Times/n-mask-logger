@@ -21,7 +21,7 @@
     "sinon": "^1.17.4"
   },
   "engines": {
-    "node": "5.10.1"
+    "node": "6.7.0"
   },
   "version": "1.2.0",
   "scripts": {

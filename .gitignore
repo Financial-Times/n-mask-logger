@@ -1,5 +1,8 @@
+.editorconfig
+.eslintrc.js
+
+/node-*
+
 /.idea/
 /build/
 /node_modules/
-.eslintrc.js
-node-*
