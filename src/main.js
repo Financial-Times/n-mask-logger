@@ -2,9 +2,9 @@ import logger from '@financial-times/n-logger';
 
 const MASK_SEQUENCE = '*****';
 
-class SafeLogger {
+export default class {
 
-	constructor (sensitiveFields=[]) {
+	constructor (sensitiveFields = []) {
 		this.sensitiveFields = sensitiveFields;
 	}
 
@@ -21,71 +21,40 @@ class SafeLogger {
 	}
 
 	log (type, ...messages) {
-		let maskedMessage;
-
-		let result = [];
-
-		for (const message of messages) {
-			if (message) {
-				if (typeof message === 'object') {
-					maskedMessage = {};
-					maskedMessage = this.maskMessage(message);
-					result.push(JSON.stringify(maskedMessage));
+		const maskedMessages = messages
+			.map(message => {
+				if (typeof message === 'object' && message !== null) {
+					return this.maskObject(message);
+				} else if (typeof message === 'string') {
+					const shouldMask = this.sensitiveFields.find(sensitiveField => message.includes(sensitiveField));
+					return shouldMask ? MASK_SEQUENCE : message;
+				} else {
+					return message;
 				}
-				else {
-					maskedMessage = message;
-					for (const field of this.sensitiveFields) {
-						if (message.indexOf(field) !== -1) {
-							maskedMessage = MASK_SEQUENCE;
-							break;
-						}
-					}
-					result.push(maskedMessage);
-				}
-			} else if (message === '') {
-				result.push(message);
+			});
+		logger[type].apply(logger, maskedMessages);
+
+		return maskedMessages;
+	}
+
+	maskObject (nakedObject) {
+		const reduceObject = (object, currentMaskedObject, key) => {
+			const value = object[key];
+			if (typeof value === 'object' && message !== null) {
+				currentMaskedObject[key] = Object.keys(value).reduce(reduceObject.bind(this, value), { });
+			} else if (typeof value === 'string') {
+				const shouldMask = this.sensitiveFields.find(sensitiveField =>
+					sensitiveField.toLowerCase() === key.toLowerCase() || value.includes(sensitiveField)
+				);
+				currentMaskedObject[key] = shouldMask ? MASK_SEQUENCE : value;
 			} else {
-				result.push('null');
+				currentMaskedObject[key] = value;
 			}
-		}
 
-		const resultStr = result.join(' ');
+			return currentMaskedObject;
+		};
 
-		logger[type](resultStr);
-		return resultStr;
-
+		return Object.keys(nakedObject).reduce(reduceObject.bind(this, nakedObject), { });
 	}
 
-	maskMessage (message) {
-		let clonedMessage = JSON.parse(JSON.stringify(message));
-		let maskedField;
-
-		for (const field in message) {
-
-			if (message.hasOwnProperty(field)){
-
-				if (typeof message[field] === 'object') {
-					maskedField = this.maskMessage(message[field]);
-					clonedMessage[field] = maskedField;
-				}
-				else {
-					if (this.sensitiveFields.indexOf(field) !== -1) {
-						// Object KEY is a sentisitve field, mask the VALUE
-						clonedMessage[field] = MASK_SEQUENCE;
-					}
-					else {
-						// Does the VALUE of a safe KEY contain a sensitive word in itself?
-						for (const sensitiveField of this.sensitiveFields) {
-							if (message[field] && typeof message[field] === 'string' && message[field].length > 0 && message[field].indexOf(sensitiveField) !== -1) {
-								clonedMessage[field] = MASK_SEQUENCE;
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-		return clonedMessage;
-	}
 }
-export default SafeLogger;
