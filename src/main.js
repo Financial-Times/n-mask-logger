@@ -40,7 +40,7 @@ export default class {
 	maskObject (nakedObject) {
 		const reduceObject = (object, currentMaskedObject, key) => {
 			const value = object[key];
-			if (typeof value === 'object' && message !== null) {
+			if (typeof value === 'object' && value !== null) {
 				currentMaskedObject[key] = Object.keys(value).reduce(reduceObject.bind(this, value), { });
 			} else if (typeof value === 'string') {
 				const shouldMask = this.sensitiveFields.find(sensitiveField =>
