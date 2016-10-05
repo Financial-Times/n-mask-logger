@@ -18,10 +18,11 @@
     "eslint": "^2.9.0",
     "lintspaces-cli": "^0.1.1",
     "mocha": "^2.2.1",
+    "npm-prepublish": "^1.2.1",
     "sinon": "^1.17.4"
   },
   "engines": {
-    "node": "5.10.1"
+    "node": "6.7.0"
   },
   "version": "1.2.0",
   "scripts": {
