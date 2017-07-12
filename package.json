@@ -8,12 +8,16 @@
     "url": "https://github.com/Financial-Times/n-mask-logger.git"
   },
   "scripts": {
-    "prepublish": "make build"
+    "prepublish": "make build",
+    "precommit": "node_modules/.bin/secret-squirrel",
+    "commitmsg": "node_modules/.bin/secret-squirrel-commitmsg",
+    "prepush": "make verify -j3"
   },
   "dependencies": {
     "@financial-times/n-logger": "^5.3.0"
   },
   "devDependencies": {
+    "@financial-times/n-gage": "^1.8.21",
     "babel-cli": "^6.5.1",
     "babel-plugin-transform-object-assign": "^6.5.0",
     "babel-preset-es2015": "^6.5.0",
