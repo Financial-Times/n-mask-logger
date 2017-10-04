@@ -126,7 +126,7 @@ describe('Logger', () => {
 			message.should.eql(['*****', { other: { password: '*****' } }]);
 		});
 
-		it.only('ERROR: Should mask VALUE of sensitive KEY in error', () => {
+		it('ERROR: Should mask VALUE of sensitive KEY in error', () => {
 			const error = new Error('Something went wrong');
 			const error2 = new Error('this wont be logged email');
 			const message = logger.info({
