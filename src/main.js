@@ -24,7 +24,7 @@ export default class {
 		const maskedMessages = messages
 			.map(message => {
 				if (typeof message === 'object' && message !== null) {
-					return this.maskObject(message);
+					return this.maskObject(this.extractErrorDetails(message));
 				} else if (typeof message === 'string') {
 					const shouldMask = this.sensitiveFields.find(sensitiveField => message.includes(sensitiveField));
 					return shouldMask ? MASK_SEQUENCE : message;
@@ -55,6 +55,22 @@ export default class {
 		};
 
 		return Object.keys(nakedObject).reduce(reduceObject.bind(this, nakedObject), { });
+	}
+
+	extractErrorDetails (obj) {
+		if (obj instanceof Error) {
+			const deets = {
+				error_message: obj.message,
+				error_name: obj.name
+			};
+			if ('stack' in obj) {
+				deets.error_stack = obj.stack;
+			}
+
+			return deets;
+		} else {
+			return obj;
+		}
 	}
 
 }
