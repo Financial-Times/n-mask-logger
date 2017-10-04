@@ -1,4 +1,9 @@
 {
-  "presets": ["es2015"],
-  "plugins": ["transform-object-assign"]
+    "presets": [
+        ["env", {
+            "targets": {
+                "node": 4
+            }
+        }]
+    ]
 }

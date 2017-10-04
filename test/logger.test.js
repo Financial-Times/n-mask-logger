@@ -10,7 +10,7 @@ describe('Logger', () => {
 		let logger;
 
 		beforeEach(() => {
-			logger = new SafeLogger(['password', 'email'])
+			logger = new SafeLogger(['password', 'email']);
 		});
 
 		it('STRING: Should log an empty object', () => {
@@ -147,5 +147,5 @@ describe('Logger', () => {
 			}]);
 		});
 
-	})
+	});
 });
