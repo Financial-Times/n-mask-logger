@@ -5,7 +5,7 @@ const MASK_SEQUENCE = '*****';
 export default class {
 
 	constructor (sensitiveFields = []) {
-		this.sensitiveFields = sensitiveFields;
+		this.sensitiveFields = new RegExp(`(${sensitiveFields.join('|')})`, 'i');
 	}
 
 	info (...args) {
@@ -26,7 +26,7 @@ export default class {
 				if (typeof message === 'object' && message !== null) {
 					return this.maskObject(this.extractErrorDetails(message));
 				} else if (typeof message === 'string') {
-					const shouldMask = this.sensitiveFields.find(sensitiveField => message.includes(sensitiveField));
+					const shouldMask = this.sensitiveFields.test(message);
 					return shouldMask ? MASK_SEQUENCE : message;
 				} else {
 					return message;
@@ -43,9 +43,7 @@ export default class {
 			if (typeof value === 'object' && value !== null) {
 				currentMaskedObject[key] = Object.keys(value).reduce(reduceObject.bind(this, value), { });
 			} else if (typeof value === 'string') {
-				const shouldMask = this.sensitiveFields.find(sensitiveField =>
-					sensitiveField.toLowerCase() === key.toLowerCase() || value.includes(sensitiveField)
-				);
+				const shouldMask = this.sensitiveFields.test(key) || this.sensitiveFields.test(value);
 				currentMaskedObject[key] = shouldMask ? MASK_SEQUENCE : value;
 			} else {
 				currentMaskedObject[key] = value;
