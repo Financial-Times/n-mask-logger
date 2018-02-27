@@ -5,7 +5,8 @@ const MASK_SEQUENCE = '*****';
 export default class {
 
 	constructor (sensitiveFields = []) {
-		this.sensitiveFields = new RegExp(`(${sensitiveFields.join('|')})`, 'i');
+		const fieldsToMask = sensitiveFields.join('|');
+		this.sensitiveFields = new RegExp(`(${fieldsToMask})[\\\s]*\\=[\\\s]*[\\\]?[\\"\\']?([\\S]+)[\\\]?[\\"\\']?|(${fieldsToMask})`, 'ig');
 	}
 
 	info (...args) {
@@ -27,7 +28,7 @@ export default class {
 					return this.maskObject(this.extractErrorDetails(message));
 				} else if (typeof message === 'string') {
 					const shouldMask = this.sensitiveFields.test(message);
-					return shouldMask ? MASK_SEQUENCE : message;
+					return shouldMask ? this.maskString(message) : message;
 				} else {
 					return message;
 				}
@@ -53,6 +54,12 @@ export default class {
 		};
 
 		return Object.keys(nakedObject).reduce(reduceObject.bind(this, nakedObject), { });
+	}
+
+	maskString (rawString) {
+		return rawString.replace(this.sensitiveFields, (match, p1) => {
+			return p1 ? `${p1}="${MASK_SEQUENCE}"` : MASK_SEQUENCE;
+		});
 	}
 
 	extractErrorDetails (obj) {
