@@ -6,7 +6,7 @@ export default class {
 
 	constructor (sensitiveFields = []) {
 		const fieldsToMask = sensitiveFields.join('|');
-		this.sensitiveFields = new RegExp(`(${fieldsToMask})[\\ ]?\\=[\\ ]?[\\\]?[\\"\\']?([\\S]+)[\\\]?[\\"\\']?|(${fieldsToMask})`, 'ig');
+		this.sensitiveFields = new RegExp(`(${fieldsToMask})[\\\s]*\\=[\\\s]*[\\\]?[\\"\\']?([\\S]+)[\\\]?[\\"\\']?|(${fieldsToMask})`, 'ig');
 	}
 
 	info (...args) {

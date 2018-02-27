@@ -153,6 +153,16 @@ describe('Logger', () => {
 			message.should.eql(['email="*****" user=anything password="*****"']);
 		});
 
+		it('should intelligently mask spaced values if possible', () => {
+			const message = logger.info('email =   "test@mail.com" user="anything" password     = "test"');
+			message.should.eql(['email="*****" user="anything" password="*****"']);
+		});
+
+		it('should intelligently mask escaped values if possible', () => {
+			const message = logger.info('email=\"test@mail.com\" user=\"anything\" password=\"test\"');
+			message.should.eql(['email="*****" user="anything" password="*****"']);
+		});
+
 		it('should still mask plain key occurrences', () => {
 			const message = logger.info('email=test@mail.com user="anything" and this mentions a password!');
 			message.should.eql(['email="*****" user="anything" and this mentions a *****!']);
