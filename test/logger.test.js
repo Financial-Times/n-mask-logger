@@ -5,20 +5,66 @@ import SafeLogger from '../src/main';
 
 describe('Logger', () => {
 
-	describe('Logging', () => {
+	let logger;
+	beforeEach(() => {
+		logger = new SafeLogger(['password', 'email']);
+	});
 
-		let logger;
+	context('GENERAL', () => {
 
-		beforeEach(() => {
-			logger = new SafeLogger(['password', 'email']);
+		it('Should warn', () => {
+			// TODO check the log type
+			const message = logger.warn('something');
+			message.should.eql(['something']);
 		});
 
-		it('STRING: Should log an empty object', () => {
+		it('Should error', () => {
+			// TODO check the log type
+			const message = logger.error('something');
+			message.should.eql(['something']);
+		});
+
+		it('Should log null', () => {
+			const message = logger.info(null);
+			message.should.eql([null]);
+		});
+
+		it('Should log mix of strings and objects', () => {
+			const message = logger.info('an email else', { other: { password: 'passw0rd' } });
+			message.should.eql(['an ***** else', { other: { password: '*****' } }]);
+		});
+
+		it('Should mask VALUE of sensitive KEY in Error', () => {
+			const error = new Error('Something went wrong');
+			const error2 = new Error('this wont be logged email');
+			const message = logger.info({
+				something: 'safe',
+				password: 'should not log this'
+			}, error, error2);
+			message.should.eql([{
+				something: 'safe',
+				password: '*****'
+			},{
+				error_message: error.message,
+				error_name: error.name,
+				error_stack: error.stack
+			},{
+				error_message: '*****',
+				error_name: 'Error',
+				error_stack: '*****'
+			}]);
+		});
+
+	});
+
+	context('OBJECT', () => {
+
+		it('Should log an empty object', () => {
 			const message = logger.info({ });
 			message.should.eql([{ }]);
 		});
 
-		it('OBJECT: Should mask VALUE of sensitive KEY', () => {
+		it('Should mask VALUE of sensitive KEY', () => {
 			const message = logger.info({
 				something: 'safe',
 				password: 'should not log this'
@@ -29,7 +75,7 @@ describe('Logger', () => {
 			}]);
 		});
 
-		it('OBJECT: Should mask VALUE of sensitive KEY n-levels deep', () => {
+		it('Should mask VALUE of sensitive KEY n-levels deep', () => {
 			const message = logger.info({
 				something: 'safe',
 				other: {
@@ -56,7 +102,7 @@ describe('Logger', () => {
 			}]);
 		});
 
-		it('OBJECT: Should mask full VALUE if VALUE contains sensitive word', () => {
+		it('Should mask full VALUE if VALUE contains sensitive word', () => {
 			const message = logger.info({
 				something: 'safe',
 				other: {
@@ -83,69 +129,35 @@ describe('Logger', () => {
 			}]);
 		});
 
+	});
 
-		it('STRING: Should log empty string', () => {
+	context('STRING', () => {
+
+		it('Should log empty string', () => {
 			const message = logger.info('');
 			message.should.eql(['']);
 		});
 
-		it('STRING: Should match n-logger output if safe', () => {
+		it('Should match n-logger output if safe', () => {
 			const message = logger.info('something safe');
 			message.should.eql(['something safe']);
 		});
 
-		it('STRING: Should mask all output if sensitive string detected', () => {
-			const message = logger.info('I have the sensitive word password in me. Mask me just in case!');
-			message.should.eql(['*****']);
+		it('should intelligently mask quoted values if possible', () => {
+			const message = logger.info('email="test@mail.com" user="anything" password="test"');
+			message.should.eql(['email="*****" user="anything" password="*****"']);
 		});
 
-		it('STRING: Should mask full VALUE if KEY is sensitive word', () => {
-			const message = logger.info('Mostly safe but contains the word password. This should be masked.');
-			message.should.eql(['*****']);
+		it('should intelligently mask unquoted if possible', () => {
+			const message = logger.info('email=test@mail.com user=anything password=test');
+			message.should.eql(['email="*****" user=anything password="*****"']);
 		});
 
-		it('STRING: Should warn', () => {
-			// TODO check the log type
-			const message = logger.warn('something');
-			message.should.eql(['something']);
-		});
-
-		it('STRING: Should error', () => {
-			// TODO check the log type
-			const message = logger.error('something');
-			message.should.eql(['something']);
-		});
-
-		it('EMPTY: Should log null', () => {
-			const message = logger.info(null);
-			message.should.eql([null]);
-		});
-
-		it('MULTI: Should log mix of strings and objects', () => {
-			const message = logger.info('an email else', { other: { password: 'passw0rd' } });
-			message.should.eql(['*****', { other: { password: '*****' } }]);
-		});
-
-		it('ERROR: Should mask VALUE of sensitive KEY in error', () => {
-			const error = new Error('Something went wrong');
-			const error2 = new Error('this wont be logged email');
-			const message = logger.info({
-				something: 'safe',
-				password: 'should not log this'
-			}, error, error2);
-			message.should.eql([{
-				something: 'safe',
-				password: '*****'
-			},{
-				error_message: error.message,
-				error_name: error.name,
-				error_stack: error.stack
-			},{
-				error_message: '*****',
-				error_name: 'Error',
-				error_stack: '*****'
-			}]);
+		it('should still mask plain key occurrences', () => {
+			const message = logger.info('email=test@mail.com user="anything" and this mentions a password!');
+			message.should.eql(['email="*****" user="anything" and this mentions a *****!']);
 		});
 
 	});
+
 });
