@@ -55,6 +55,24 @@ describe('Logger', () => {
 			}]);
 		});
 
+		it('Should mask VALUE of sensitive KEY in *nested* Error', () => {
+			const error = new Error('Something went wrong');
+			const message = logger.info({
+				something: 'safe',
+				password: 'should not log this',
+				data: error
+			});
+			message.should.eql([{
+				something: 'safe',
+				password: '*****',
+				data: {
+					error_message: error.message,
+					error_name: error.name,
+					error_stack: error.stack
+				}
+			}]);
+		});
+
 	});
 
 	context('OBJECT', () => {
