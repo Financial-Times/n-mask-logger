@@ -18,6 +18,12 @@ describe('Logger', () => {
 			message.should.eql(['something']);
 		});
 
+		it('Should debug', () => {
+			// TODO check the log type
+			const message = logger.debug('something');
+			message.should.eql(['something']);
+		});
+
 		it('Should error', () => {
 			// TODO check the log type
 			const message = logger.error('something');

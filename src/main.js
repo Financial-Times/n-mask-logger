@@ -9,6 +9,10 @@ export default class {
 		this.sensitiveFields = new RegExp(`(${fieldsToMask})[\\\s]*\\=[\\\s]*[\\\]?[\\"\\']?([\\S]+)[\\\]?[\\"\\']?|(${fieldsToMask})`, 'ig');
 	}
 
+	debug (...args) {
+		return this.log('debug', ...args);
+	}
+
 	info (...args) {
 		return this.log('info', ...args);
 	}
