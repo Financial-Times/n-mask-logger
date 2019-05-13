@@ -75,9 +75,15 @@ export default class {
 				error_message: obj.message,
 				error_name: obj.name
 			};
-			if (obj.data) {
-				deets.error_data = this.maskObject(obj.data);
-			}
+
+			Object.keys(obj).forEach(key => {
+				if (key !== 'message' && key !== 'name') {
+					if (obj[key]) {
+						deets[`error_${key}`] = this.maskObject(obj[key]);
+					}
+				}
+			});
+
 			if ('stack' in obj) {
 				deets.error_stack = obj.stack;
 			}
