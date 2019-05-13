@@ -2,6 +2,7 @@ import chai from 'chai';
 chai.should();
 
 import SafeLogger from '../src/main';
+import { AnotherError } from './utils/error';
 
 describe('Logger', () => {
 
@@ -190,6 +191,41 @@ describe('Logger', () => {
 		it('should still mask plain key occurrences', () => {
 			const message = logger.info('email=test@mail.com user="anything" and this mentions a password!');
 			message.should.eql(['email="*****" user="anything" and this mentions a *****!']);
+		});
+
+	});
+
+	context('ERROR INSTANCE', () => {
+
+		it('returns logger response with masked sensitive data', () => {
+			const data = {
+				responseData: {
+					errorMessage: 'Password field is not defined'
+				},
+				requestData: {
+					rememberMe: true,
+					email: 'email'
+				}
+			};
+			const error = new AnotherError('Something went wrong', data);
+			const loggerResponse = logger.error('Missing fields', error);
+			loggerResponse.should.eql([
+				'Missing fields',
+				{
+					error_data: {
+						requestData: {
+							rememberMe: true,
+							email: '*****'
+						},
+						responseData: {
+							errorMessage: '*****'
+						}
+					},
+					error_message: 'Something went wrong',
+					error_name: 'Error',
+					error_stack:  error.stack
+				}
+			]);
 		});
 
 	});
