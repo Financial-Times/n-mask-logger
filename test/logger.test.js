@@ -2,7 +2,6 @@ import chai from 'chai';
 chai.should();
 
 import SafeLogger from '../src/main';
-import { AnotherError } from './utils/error';
 
 describe('Logger', () => {
 
@@ -196,6 +195,15 @@ describe('Logger', () => {
 	});
 
 	context('ERROR INSTANCE', () => {
+		class AnotherError extends Error {
+
+			constructor (message, data, info) {
+				super(message);
+				this.data = data;
+				this.info = info;
+			}
+		}
+
 		const data = {
 			responseData: {
 				errorMessage: 'Password field is not defined'
