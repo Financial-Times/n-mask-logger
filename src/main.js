@@ -48,6 +48,7 @@ export default class {
 			if (value instanceof Error) {
 				currentMaskedObject[key] = this.extractErrorDetails(value);
 			} else if (typeof value === 'object' && value !== null) {
+				this.sensitiveFields.test(key);
 				currentMaskedObject[key] = Object.keys(value).reduce(reduceObject.bind(this, value), { });
 			} else if (typeof value === 'string') {
 				const shouldMask = this.sensitiveFields.test(key) || this.sensitiveFields.test(value);
@@ -74,6 +75,15 @@ export default class {
 				error_message: obj.message,
 				error_name: obj.name
 			};
+
+			Object.keys(obj).forEach(key => {
+				if (key !== 'message' && key !== 'name') {
+					if (obj[key]) {
+						deets[`error_${key}`] = this.maskObject(obj[key]);
+					}
+				}
+			});
+
 			if ('stack' in obj) {
 				deets.error_stack = obj.stack;
 			}

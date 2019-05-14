@@ -194,4 +194,105 @@ describe('Logger', () => {
 
 	});
 
+	context('ERROR INSTANCE', () => {
+		class AnotherError extends Error {
+
+			constructor (message, data, info) {
+				super(message);
+				this.data = data;
+				this.info = info;
+			}
+		}
+
+		const data = {
+			responseData: {
+				errorMessage: 'Password field is not defined'
+			},
+			requestData: {
+				rememberMe: true,
+				email: 'email'
+			}
+		};
+
+		context('returns logger response', () => {
+			it('maskes sensitive data', () => {
+				const error = new AnotherError('Something went wrong', data);
+				const loggerResponse = logger.error('Missing fields', error);
+				loggerResponse.should.eql([
+					'Missing fields',
+					{
+						error_data: {
+							requestData: {
+								rememberMe: true,
+								email: '*****'
+							},
+							responseData: {
+								errorMessage: '*****'
+							}
+						},
+						error_message: 'Something went wrong',
+						error_name: 'Error',
+						error_stack:  error.stack
+					}
+				]);
+			});
+
+			it('maskes any extra properties with sensitive info', () => {
+				const info = { id: 'id', email: 'email', password: 'password' };
+				const error = new AnotherError('Something went wrong', data, info);
+				const loggerResponse = logger.error('Missing fields', error);
+				loggerResponse.should.eql([
+					'Missing fields',
+					{
+						error_data: {
+							requestData: {
+								rememberMe: true,
+								email: '*****'
+							},
+							responseData: {
+								errorMessage: '*****'
+							}
+						},
+						error_info: {
+							id: 'id',
+							email: '*****',
+							password: '*****'
+						},
+						error_message: 'Something went wrong',
+						error_name: 'Error',
+						error_stack:  error.stack
+					}
+				]);
+			});
+
+			it('does not contain a data object', () => {
+				const error = new AnotherError('Something went wrong');
+				const loggerResponse = logger.error('Missing fields', error);
+				loggerResponse.should.eql([
+					'Missing fields',
+					{
+						error_message: 'Something went wrong',
+						error_name: 'Error',
+						error_stack:  error.stack
+					}
+				]);
+			});
+
+			it('for an error instance woth no extra properties', () => {
+				const error = new Error('Something went wrong');
+				const loggerResponse = logger.error('Missing fields', error);
+				loggerResponse.should.eql([
+					'Missing fields',
+					{
+						error_message: 'Something went wrong',
+						error_name: 'Error',
+						error_stack:  error.stack
+					}
+				]);
+			});
+
+		});
+
+	});
+
 });
