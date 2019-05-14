@@ -48,7 +48,6 @@ export default class {
 			if (value instanceof Error) {
 				currentMaskedObject[key] = this.extractErrorDetails(value);
 			} else if (typeof value === 'object' && value !== null) {
-				this.sensitiveFields.test(key);
 				currentMaskedObject[key] = Object.keys(value).reduce(reduceObject.bind(this, value), { });
 			} else if (typeof value === 'string') {
 				const shouldMask = this.sensitiveFields.test(key) || this.sensitiveFields.test(value);
