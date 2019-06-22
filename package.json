@@ -22,7 +22,7 @@
     "babel-preset-env": "^1.1.8",
     "babel-register": "^6.5.1",
     "chai": "^3.5.0",
-    "eslint": "^2.9.0",
+    "eslint": "^6.0.0",
     "lintspaces-cli": "^0.1.1",
     "mocha": "^5.2.0",
     "npm-prepublish": "^1.2.1",
