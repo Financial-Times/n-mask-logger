@@ -11,7 +11,8 @@
     "prepublish": "make build",
     "precommit": "node_modules/.bin/secret-squirrel",
     "commitmsg": "node_modules/.bin/secret-squirrel-commitmsg",
-    "prepush": "make verify -j3"
+    "prepush": "make verify -j3",
+    "prepare": "npx snyk protect || npx snyk protect -d || true"
   },
   "dependencies": {
     "@financial-times/n-logger": "^6.0.1"
@@ -26,6 +27,7 @@
     "lintspaces-cli": "^0.1.1",
     "mocha": "^5.2.0",
     "npm-prepublish": "^1.2.1",
-    "sinon": "^1.17.4"
+    "sinon": "^1.17.4",
+    "snyk": "^1.168.0"
   }
 }
