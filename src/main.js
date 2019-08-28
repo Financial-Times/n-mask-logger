@@ -64,7 +64,7 @@ export default class {
 
 	maskString (rawString) {
 		return rawString.replace(this.sensitiveFields, (match, p1) => {
-			return p1 ? `${p1}="${MASK_SEQUENCE}"` : MASK_SEQUENCE;
+			return p1 ? `${p1}="${MASK_SEQUENCE}"` : match;
 		});
 	}
 

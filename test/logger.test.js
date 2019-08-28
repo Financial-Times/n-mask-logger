@@ -37,7 +37,7 @@ describe('Logger', () => {
 
 		it('Should log mix of strings and objects', () => {
 			const message = logger.info('an email else', { other: { password: 'passw0rd' } });
-			message.should.eql(['an ***** else', { other: { password: '*****' } }]);
+			message.should.eql(['an email else', { other: { password: '*****' } }]);
 		});
 
 		it('Should mask VALUE of sensitive KEY in Error', () => {
@@ -187,11 +187,20 @@ describe('Logger', () => {
 			message.should.eql(['email="*****" user="anything" password="*****"']);
 		});
 
-		it('should still mask plain key occurrences', () => {
+		it('should not mask plain key occurrences as they are not sensitive', () => {
 			const message = logger.info('email=test@mail.com user="anything" and this mentions a password!');
-			message.should.eql(['email="*****" user="anything" and this mentions a *****!']);
+			message.should.eql(['email="*****" user="anything" and this mentions a password!']);
 		});
 
+		it('should not mask plain key occurrences in a URL as they are not sensitive', () => {
+			const message = logger.info('/url/that/contains/email');
+			message.should.eql(['/url/that/contains/email']);
+		});
+
+		it('should not mask plain key occurrences in a string as they are not sensitive', () => {
+			const message = logger.info('emailIsPartOfAString');
+			message.should.eql(['emailIsPartOfAString']);
+		});
 	});
 
 	context('ERROR INSTANCE', () => {
