@@ -52,6 +52,12 @@ describe('MaskLogger', () => {
 			const logger = new MaskLogger([], [], alternativeMask);
 			expect(logger.maskString).to.equal(alternativeMask);
 		});
+
+		it('should deduplicate the maskList for performance', () => {
+			const logger = new MaskLogger(['test', 'test', 'email']);
+			expect(logger.maskList.filter(item => item === 'test').length).to.equal(1);
+			expect(logger.maskList.filter(item => item === 'email').length).to.equal(1);
+		});
 	});
 
 	['debug', 'info', 'warn', 'error'].forEach(type => {
