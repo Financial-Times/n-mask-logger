@@ -2,5 +2,4 @@
 .eslintrc.js
 
 /.idea/
-/build/
 /node_modules/
