@@ -2,7 +2,7 @@ const expect = require('chai').expect;
 const sandbox = require('sinon').createSandbox();
 const proxyquire = require('proxyquire').noCallThru();
 const nLoggerStub = {};
-const SafeLogger = proxyquire('../src/main', {
+const MaskLogger = proxyquire('../src/main', {
 	'@financial-times/n-logger': {
 		default: nLoggerStub
 	}
@@ -11,11 +11,12 @@ const SafeLogger = proxyquire('../src/main', {
 describe('MaskLogger', () => {
 	let logger;
 	const mask = '*****';
+	const alternativeMask = '*MASKED*';
 	const testEmail = 'example@example.com';
 	const testPassword = 'testing123';
 
 	beforeEach(() => {
-		logger = new SafeLogger(['password', 'email']);
+		logger = new MaskLogger();
 		sandbox.spy(logger, 'log');
 		sandbox.spy(logger, 'mask');
 		nLoggerStub.debug = sandbox.stub();
@@ -26,6 +27,31 @@ describe('MaskLogger', () => {
 
 	afterEach(() => {
 		sandbox.restore();
+	});
+
+	describe('constructor', () => {
+		it('should have a list of default denied fields', () => {
+			const logger = new MaskLogger();
+			expect(logger.maskList.length).to.be.greaterThan(0);
+		});
+
+		it('should add new fields to denied list if supplied', () => {
+			const denyList = ['new', 'things'];
+			const logger = new MaskLogger(denyList);
+			expect(logger.maskList).to.contain(...denyList);
+		});
+
+		it('should remove fields if they are in the allowed list', () => {
+			const denyList = ['new', 'things'];
+			const allowList = ['things', 'email', 'password'];
+			const logger = new MaskLogger(denyList, allowList);
+			expect(logger.maskList).not.to.contain(...allowList);
+		});
+
+		it('should change the maskString', () => {
+			const logger = new MaskLogger([], [], alternativeMask);
+			expect(logger.maskString).to.equal(alternativeMask);
+		});
 	});
 
 	['debug', 'info', 'warn', 'error'].forEach(type => {
@@ -71,6 +97,26 @@ describe('MaskLogger', () => {
 	});
 
 	describe('mask', () => {
+		it('should not mask something not on the maskList', () => {
+			const logger = new MaskLogger();
+			expect(logger.mask(`test=${testEmail}`)).to.equal(`test=${testEmail}`);
+		});
+
+		it('should respect the denyList when masking', () => {
+			const logger = new MaskLogger(['test']);
+			expect(logger.mask(`test=${testEmail}`)).to.equal(`test=${mask}`);
+		});
+
+		it('should respect the allowList when masking', () => {
+			const blah = new MaskLogger([], ['email']);
+			expect(blah.mask(`email=${testEmail}`)).to.equal(`email=${testEmail}`);
+		});
+
+		it('should use the given maskString for masking', () => {
+			const logger = new MaskLogger([], [], alternativeMask);
+			expect(logger.mask(`email=${testEmail}`)).to.equal(`email=${alternativeMask}`);
+		});
+
 		describe('values in strings', () => {
 			[
 				// Don't mask

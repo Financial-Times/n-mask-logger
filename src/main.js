@@ -3,29 +3,40 @@ const logger = require('@financial-times/n-logger').default;
 /**
  * MaskLogger Class
  * @example
- * const logger = new MaskLogger(['email', 'password'], '*MASKED*');
+ * const logger = new MaskLogger(['denyField'], ['allowField'], '*MASKED*');
  * logger.debug('Data which may contain sensitive information', data);
  */
 class MaskLogger {
 	/**
 	 * Create a MaskLogger
-	 * @param {array<string>} sensitiveFields Field names strings to search for
+	 * @param {array<string>} denyList Extra field names to mask
+	 * @param {array<string>} allowList Field names to allow from the default deny list
 	 * @param {string?} maskString Mask to be applied to sensitive values
-	 * @throws {Error} When sensitiveFields is not passed correctly
 	 */
-	constructor (sensitiveFields, maskString = '*****') {
-		if (!Array.isArray(sensitiveFields)) {
-			throw new Error('sensitiveFields needs to be an array of field names to mask');
-		}
-		this.sensitiveFields = sensitiveFields;
+	constructor (denyList = [], allowList = [], maskString = '*****') {
 		this.maskString = maskString;
+		this.maskList = [
+			'email',
+			'password',
+			'name',
+			'firstName',
+			'lastName',
+			'phone',
+			'primaryTelephone',
+			'postcode',
+			'session',
+			...denyList
+		];
+
+		// Remove items from maskList if they are in the allowList
+		this.maskList = this.maskList.filter(item => !allowList.includes(item));
 
 		// Regex defined in a string has to have escaped characters escaped
 		// Value regex is space delimited meaning it will stop searching the value if a space is found
 		// A sensitive value that contains a space will only be partially masked
 		const valueRegex = '[\'"\\s]*[=:][\\s]*([\\S]+)[\\]\\["\'{}]?';
-		const fieldRegex = `[${this.sensitiveFields.join('|')}]`;
-		this.sensitiveRegex = new RegExp(`${fieldRegex}${valueRegex}`, 'ig');
+		const fieldRegex = `(?:${this.maskList.join('|')})`;
+		this.maskRegex = new RegExp(`${fieldRegex}${valueRegex}`, 'ig');
 	}
 
 	/**
@@ -107,7 +118,9 @@ class MaskLogger {
 			} catch (e) {}
 		}
 
-		return message.replace(this.sensitiveRegex, (match, captureGroup) => {
+		// Capture group of the maskRegex should contain the sensitive value
+		// replace this with the maskString to remove the sensitive information
+		return message.replace(this.maskRegex, (match, captureGroup) => {
 			return match.replace(captureGroup, this.maskString);
 		});
 	}
@@ -121,7 +134,7 @@ class MaskLogger {
 	_maskObject (message) {
 		for (let key in message) {
 			// If the key is sensitive mask the value entirely
-			if (this.sensitiveFields.includes(key)) {
+			if (this.maskList.includes(key)) {
 				message[key] = this.maskString;
 			} else {
 				// If the key is not sensitive run the mask on it's value
