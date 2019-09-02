@@ -114,13 +114,25 @@ describe('MaskLogger', () => {
 		});
 
 		it('should respect the allowList when masking', () => {
-			const blah = new MaskLogger([], ['email']);
-			expect(blah.mask(`email=${testEmail}`)).to.equal(`email=${testEmail}`);
+			const logger = new MaskLogger([], ['email']);
+			expect(logger.mask(`email=${testEmail}`)).to.equal(`email=${testEmail}`);
 		});
 
 		it('should use the given maskString for masking', () => {
 			const logger = new MaskLogger([], [], alternativeMask);
 			expect(logger.mask(`email=${testEmail}`)).to.equal(`email=${alternativeMask}`);
+		});
+
+		it('should not change the original object', () => {
+			const original = { email: testEmail };
+			logger.mask(original);
+			expect(original.email).to.equal(testEmail);
+		});
+
+		it('should not change the original deep nested object', () => {
+			const original = { nest1: { nest2: { nest3: { email: testEmail } } } };
+			logger.mask(original);
+			expect(original.nest1.nest2.nest3.email).to.equal(testEmail);
 		});
 
 		describe('values in strings', () => {

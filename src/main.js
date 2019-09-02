@@ -135,16 +135,18 @@ class MaskLogger {
 	 * @returns {object} Fully masked
 	 */
 	_maskObject (message) {
+		// Makes a new object rather than modifying the original as that could have terrible side effects
+		const maskMessage = {};
 		for (let key in message) {
 			// If the key is sensitive mask the value entirely
 			if (this.maskList.includes(key)) {
-				message[key] = this.maskString;
+				maskMessage[key] = this.maskString;
 			} else {
 				// If the key is not sensitive run the mask on it's value
-				message[key] = this.mask(message[key]);
+				maskMessage[key] = this.mask(message[key]);
 			}
 		}
-		return message;
+		return maskMessage;
 	}
 }
 
