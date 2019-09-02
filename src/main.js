@@ -30,7 +30,7 @@ class MaskLogger {
 		];
 
 		// Deduplicate the maskList to increase masking performance
-		this.maskList = [...new Set(this.maskList)];
+		this.maskList = this.maskList.filter((value, index, list) => list.indexOf(value) === index);
 
 		// Remove items from maskList if they are in the allowList
 		this.maskList = this.maskList.filter(item => !allowList.includes(item));
