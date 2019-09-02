@@ -25,6 +25,7 @@ class MaskLogger {
 			'primaryTelephone',
 			'postcode',
 			'session',
+			'ft-backend-key',
 			...denyList
 		];
 
@@ -135,7 +136,7 @@ class MaskLogger {
 	 * @returns {object} Fully masked
 	 */
 	_maskObject (message) {
-		// Makes a new object rather than modifying the original as that could have terrible side effects
+		// Make a new object rather than modifying the original which would have terrible side effects
 		const maskMessage = {};
 		for (let key in message) {
 			// If the key is sensitive mask the value entirely
