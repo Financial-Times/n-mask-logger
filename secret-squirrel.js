@@ -6,7 +6,7 @@ module.exports = {
 	strings: {
 		deny: [],
 		denyOverrides: [
-			'test@mail\\.com' // test/logger.test.js:147|152|157
+			'example@example\\.com' // test/logger.test.js:14
 		]
 	}
 };

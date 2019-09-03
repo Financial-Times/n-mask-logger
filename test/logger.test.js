@@ -1,298 +1,267 @@
-import chai from 'chai';
-chai.should();
+const expect = require('chai').expect;
+const sandbox = require('sinon').createSandbox();
+const proxyquire = require('proxyquire').noCallThru();
+const nLoggerStub = {};
+const MaskLogger = proxyquire('../src/main', {
+	'@financial-times/n-logger': {
+		default: nLoggerStub
+	}
+});
 
-import SafeLogger from '../src/main';
-
-describe('Logger', () => {
-
+describe('MaskLogger', () => {
 	let logger;
+	const mask = '*****';
+	const alternativeMask = '*MASKED*';
+	const testEmail = 'example@example.com';
+	const testPassword = 'testing123';
+
 	beforeEach(() => {
-		logger = new SafeLogger(['password', 'email']);
+		logger = new MaskLogger();
+		sandbox.spy(logger, 'log');
+		sandbox.spy(logger, 'mask');
+		nLoggerStub.debug = sandbox.stub();
+		nLoggerStub.info = sandbox.stub();
+		nLoggerStub.warn = sandbox.stub();
+		nLoggerStub.error = sandbox.stub();
 	});
 
-	context('GENERAL', () => {
-
-		it('Should warn', () => {
-			// TODO check the log type
-			const message = logger.warn('something');
-			message.should.eql(['something']);
-		});
-
-		it('Should debug', () => {
-			// TODO check the log type
-			const message = logger.debug('something');
-			message.should.eql(['something']);
-		});
-
-		it('Should error', () => {
-			// TODO check the log type
-			const message = logger.error('something');
-			message.should.eql(['something']);
-		});
-
-		it('Should log null', () => {
-			const message = logger.info(null);
-			message.should.eql([null]);
-		});
-
-		it('Should log mix of strings and objects', () => {
-			const message = logger.info('an email else', { other: { password: 'passw0rd' } });
-			message.should.eql(['an ***** else', { other: { password: '*****' } }]);
-		});
-
-		it('Should mask VALUE of sensitive KEY in Error', () => {
-			const error = new Error('Something went wrong');
-			const error2 = new Error('this wont be logged email');
-			const message = logger.info({
-				something: 'safe',
-				password: 'should not log this'
-			}, error, error2);
-			message.should.eql([{
-				something: 'safe',
-				password: '*****'
-			},{
-				error_message: error.message,
-				error_name: error.name,
-				error_stack: error.stack
-			},{
-				error_message: '*****',
-				error_name: 'Error',
-				error_stack: '*****'
-			}]);
-		});
-
-		it('Should mask VALUE of sensitive KEY in *nested* Error', () => {
-			const error = new Error('Something went wrong');
-			const message = logger.info({
-				something: 'safe',
-				password: 'should not log this',
-				data: error
-			});
-			message.should.eql([{
-				something: 'safe',
-				password: '*****',
-				data: {
-					error_message: error.message,
-					error_name: error.name,
-					error_stack: error.stack
-				}
-			}]);
-		});
-
+	afterEach(() => {
+		sandbox.restore();
 	});
 
-	context('OBJECT', () => {
-
-		it('Should log an empty object', () => {
-			const message = logger.info({ });
-			message.should.eql([{ }]);
+	describe('constructor', () => {
+		it('should have a list of default denied fields', () => {
+			const logger = new MaskLogger();
+			expect(logger.maskList.length).to.be.greaterThan(0);
 		});
 
-		it('Should mask VALUE of sensitive KEY', () => {
-			const message = logger.info({
-				something: 'safe',
-				password: 'should not log this'
-			});
-			message.should.eql([{
-				something: 'safe',
-				password: '*****'
-			}]);
+		it('should add new fields to denied list if supplied', () => {
+			const denyList = ['new', 'things'];
+			const logger = new MaskLogger(denyList);
+			expect(logger.maskList).to.contain(...denyList);
 		});
 
-		it('Should mask VALUE of sensitive KEY n-levels deep', () => {
-			const message = logger.info({
-				something: 'safe',
-				other: {
-					filler: 'filler',
-					object: {
-						anotherObject: {
-							password: 'should not log this'
-						},
-						dummy: 'dummy'
-					}
-				}
-			});
-			message.should.eql([{
-				something: 'safe',
-				other: {
-					filler: 'filler',
-					object: {
-						anotherObject: {
-							password: '*****'
-						},
-						dummy: 'dummy'
-					}
-				}
-			}]);
+		it('should remove fields if they are in the allowed list', () => {
+			const denyList = ['new', 'things'];
+			const allowList = ['things', 'email', 'password'];
+			const logger = new MaskLogger(denyList, allowList);
+			expect(logger.maskList).not.to.contain(...allowList);
 		});
 
-		it('Should mask full VALUE if VALUE contains sensitive word', () => {
-			const message = logger.info({
-				something: 'safe',
-				other: {
-					filler: 'filler',
-					object: {
-						anotherObject: {
-							maskThis: 'has sensitive word password in it'
-						},
-						dummy: 'dummy'
-					}
-				}
-			});
-			message.should.eql([{
-				something: 'safe',
-				other: {
-					filler: 'filler',
-					object: {
-						anotherObject: {
-							maskThis: '*****'
-						},
-						dummy: 'dummy'
-					}
-				}
-			}]);
+		it('should change the maskString', () => {
+			const logger = new MaskLogger([], [], alternativeMask);
+			expect(logger.maskString).to.equal(alternativeMask);
 		});
 
+		it('should deduplicate the maskList for performance', () => {
+			const logger = new MaskLogger(['test', 'test', 'email']);
+			expect(logger.maskList.filter(item => item === 'test').length).to.equal(1);
+			expect(logger.maskList.filter(item => item === 'email').length).to.equal(1);
+		});
 	});
 
-	context('STRING', () => {
+	['debug', 'info', 'warn', 'error'].forEach(type => {
+		describe(type, () => {
+			it(`should call log with type ${type}`, () => {
+				logger[type]('test');
+				expect(logger.log.calledWith(type)).to.be.true;
+			});
 
-		it('Should log empty string', () => {
-			const message = logger.info('');
-			message.should.eql(['']);
+			it('should call log with all arguments', () => {
+				logger[type]('test', [], {});
+				expect(logger.log.getCall(0).args).to.eql([type, 'test', [], {}]);
+			});
 		});
-
-		it('Should match n-logger output if safe', () => {
-			const message = logger.info('something safe');
-			message.should.eql(['something safe']);
-		});
-
-		it('should intelligently mask quoted values if possible', () => {
-			const message = logger.info('email="test@mail.com" user="anything" password="test"');
-			message.should.eql(['email="*****" user="anything" password="*****"']);
-		});
-
-		it('should intelligently mask unquoted if possible', () => {
-			const message = logger.info('email=test@mail.com user=anything password=test');
-			message.should.eql(['email="*****" user=anything password="*****"']);
-		});
-
-		it('should intelligently mask spaced values if possible', () => {
-			const message = logger.info('email =   "test@mail.com" user="anything" password     = "test"');
-			message.should.eql(['email="*****" user="anything" password="*****"']);
-		});
-
-		it('should intelligently mask escaped values if possible', () => {
-			const message = logger.info('email=\"test@mail.com\" user=\"anything\" password=\"test\"');
-			message.should.eql(['email="*****" user="anything" password="*****"']);
-		});
-
-		it('should still mask plain key occurrences', () => {
-			const message = logger.info('email=test@mail.com user="anything" and this mentions a password!');
-			message.should.eql(['email="*****" user="anything" and this mentions a *****!']);
-		});
-
 	});
 
-	context('ERROR INSTANCE', () => {
-		class AnotherError extends Error {
+	describe('log', () => {
+		it('should call mask on a message', () => {
+			logger.log('info', 'message');
+			expect(logger.mask.callCount).to.equal(1);
+		});
 
-			constructor (message, data, info) {
-				super(message);
-				this.data = data;
-				this.info = info;
-			}
-		}
+		it('should call mask on every message', () => {
+			logger.log('info', 'message1', 'message2', 'message3');
+			expect(logger.mask.callCount).to.equal(3);
+		});
 
-		const data = {
-			responseData: {
-				errorMessage: 'Password field is not defined'
-			},
-			requestData: {
-				rememberMe: true,
-				email: 'email'
-			}
-		};
-
-		context('returns logger response', () => {
-			it('maskes sensitive data', () => {
-				const error = new AnotherError('Something went wrong', data);
-				const loggerResponse = logger.error('Missing fields', error);
-				loggerResponse.should.eql([
-					'Missing fields',
-					{
-						error_data: {
-							requestData: {
-								rememberMe: true,
-								email: '*****'
-							},
-							responseData: {
-								errorMessage: '*****'
-							}
-						},
-						error_message: 'Something went wrong',
-						error_name: 'Error',
-						error_stack:  error.stack
-					}
+		['debug', 'info', 'warn', 'error'].forEach(type => {
+			it(`should send ${type} masked messages to n-logger`, () => {
+				logger.log(type, 'message', `password=${testPassword}`, { email: testEmail });
+				expect(nLoggerStub[type].getCall(0).args).to.eql([
+					'message',
+					`password=${mask}`,
+					{ email: mask }
 				]);
 			});
-
-			it('maskes any extra properties with sensitive info', () => {
-				const info = { id: 'id', email: 'email', password: 'password' };
-				const error = new AnotherError('Something went wrong', data, info);
-				const loggerResponse = logger.error('Missing fields', error);
-				loggerResponse.should.eql([
-					'Missing fields',
-					{
-						error_data: {
-							requestData: {
-								rememberMe: true,
-								email: '*****'
-							},
-							responseData: {
-								errorMessage: '*****'
-							}
-						},
-						error_info: {
-							id: 'id',
-							email: '*****',
-							password: '*****'
-						},
-						error_message: 'Something went wrong',
-						error_name: 'Error',
-						error_stack:  error.stack
-					}
-				]);
-			});
-
-			it('does not contain a data object', () => {
-				const error = new AnotherError('Something went wrong');
-				const loggerResponse = logger.error('Missing fields', error);
-				loggerResponse.should.eql([
-					'Missing fields',
-					{
-						error_message: 'Something went wrong',
-						error_name: 'Error',
-						error_stack:  error.stack
-					}
-				]);
-			});
-
-			it('for an error instance woth no extra properties', () => {
-				const error = new Error('Something went wrong');
-				const loggerResponse = logger.error('Missing fields', error);
-				loggerResponse.should.eql([
-					'Missing fields',
-					{
-						error_message: 'Something went wrong',
-						error_name: 'Error',
-						error_stack:  error.stack
-					}
-				]);
-			});
-
 		});
 
+		it('should return the masked messages', () => {
+			const messages = logger.log('info', 'message', `password=${testPassword}`, { email: testEmail });
+			expect(messages).to.eql(['message', `password=${mask}`, { email: mask }]);
+		});
 	});
 
+	describe('mask', () => {
+		it('should not mask something not on the maskList', () => {
+			const logger = new MaskLogger();
+			expect(logger.mask(`test=${testEmail}`)).to.equal(`test=${testEmail}`);
+		});
+
+		it('should respect the denyList when masking', () => {
+			const logger = new MaskLogger(['test']);
+			expect(logger.mask(`test=${testEmail}`)).to.equal(`test=${mask}`);
+		});
+
+		it('should respect the allowList when masking', () => {
+			const logger = new MaskLogger([], ['email']);
+			expect(logger.mask(`email=${testEmail}`)).to.equal(`email=${testEmail}`);
+		});
+
+		it('should use the given maskString for masking', () => {
+			const logger = new MaskLogger([], [], alternativeMask);
+			expect(logger.mask(`email=${testEmail}`)).to.equal(`email=${alternativeMask}`);
+		});
+
+		it('should not change the original object', () => {
+			const original = { email: testEmail };
+			logger.mask(original);
+			expect(original.email).to.equal(testEmail);
+		});
+
+		it('should not change the original deep nested object', () => {
+			const original = { nest1: { nest2: { nest3: { email: testEmail } } } };
+			logger.mask(original);
+			expect(original.nest1.nest2.nest3.email).to.equal(testEmail);
+		});
+
+		describe('values in strings', () => {
+			[
+				// Don't mask
+				{ message: 'Plain string with an email and password', result: 'Plain string with an email and password' },
+				{ message: '/email/within/url', result: '/email/within/url' },
+				{ message: '/url/password/within', result: '/url/password/within' },
+
+				// Bare values
+				{ message: `email=${testEmail}`, result: `email=${mask}` },
+				{ message: `email:${testEmail}`, result: `email:${mask}` },
+				{ message: `email = ${testEmail}`, result: `email = ${mask}` },
+				{ message: `email : ${testEmail}`, result: `email : ${mask}` },
+				{ message: `email=${testEmail} password=${testPassword}`, result: `email=${mask} password=${mask}` },
+				{ message: `email:${testEmail} password:${testPassword}`, result: `email:${mask} password:${mask}` },
+				{ message: `email = ${testEmail} password = ${testPassword}`, result: `email = ${mask} password = ${mask}` },
+				{ message: `email : ${testEmail} password : ${testPassword}`, result: `email : ${mask} password : ${mask}` },
+
+				// Double quoted values
+				{ message: `"email"="${testEmail}"`, result: `"email"=${mask}` },
+				{ message: `"email":"${testEmail}"`, result: `"email":${mask}` },
+				{ message: `"email" = "${testEmail}"`, result: `"email" = ${mask}` },
+				{ message: `"email" : "${testEmail}"`, result: `"email" : ${mask}` },
+				{ message: `"email"="${testEmail}" "password"="${testPassword}"`, result: `"email"=${mask} "password"=${mask}` },
+				{ message: `"email":"${testEmail}" "password":"${testPassword}"`, result: `"email":${mask} "password":${mask}` },
+				{ message: `"email" = "${testEmail}" "password" = "${testPassword}"`, result: `"email" = ${mask} "password" = ${mask}` },
+				{ message: `"email" : "${testEmail}" "password" : "${testPassword}"`, result: `"email" : ${mask} "password" : ${mask}` },
+
+				// Single quoted values
+				{ message: `'email'='${testEmail}'`, result: `'email'=${mask}` },
+				{ message: `'email':'${testEmail}'`, result: `'email':${mask}`},
+				{ message: `'email' = '${testEmail}'`, result: `'email' = ${mask}` },
+				{ message: `'email' : '${testEmail}'`, result: `'email' : ${mask}`},
+				{ message: `'email'='${testEmail}' 'password'='${testPassword}'`, result: `'email'=${mask} 'password'=${mask}` },
+				{ message: `'email':'${testEmail}' 'password':'${testPassword}'`, result: `'email':${mask} 'password':${mask}` },
+				{ message: `'email' = '${testEmail}' 'password' = '${testPassword}'`, result: `'email' = ${mask} 'password' = ${mask}` },
+				{ message: `'email' : '${testEmail}' 'password' : '${testPassword}'`, result: `'email' : ${mask} 'password' : ${mask}`},
+
+				// JSON stringified values
+				// *Note* Results will have white space removed as messages are parsed and stringified
+				{ message: `{"email":"${testEmail}"}`, result: `{"email":"${mask}"}` },
+				{ message: `{ "email" : "${testEmail}" }`, result: `{"email":"${mask}"}` },
+				{ message: `{"email":"${testEmail}","password":"${testPassword}"}`, result: `{"email":"${mask}","password":"${mask}"}` },
+				{ message: `{ "email" : "${testEmail}", "password" : "${testPassword}" }`, result: `{"email":"${mask}","password":"${mask}"}` },
+
+			].forEach(({ message, result }) => {
+				it(`should mask ${message}`, () => {
+					expect(logger.mask(message)).to.eql(result);
+				});
+			});
+		});
+
+		describe('values in objects', () => {
+			[
+				// Single value
+				{
+					message: { email: testEmail },
+					result: { email: mask }
+				},
+				// Single value nested
+				{
+					message: { nest: { email: testEmail } },
+					result: { nest: { email: mask } }
+				},
+				// Single value deeply nested
+				{
+					message: { nest1: { nest2: { nest3: { email: testEmail } } } },
+					result: { nest1: { nest2: { nest3: { email: mask } } } }
+				},
+				// Multiple values
+				{
+					message: { email: testEmail, password: testPassword },
+					result: { email: mask, password: mask}
+				},
+				// Multiple values nested
+				{
+					message: { nest: { email: testEmail, password: testPassword } },
+					result: { nest: { email: mask, password: mask} }
+				},
+				// Multiple values deeply nested
+				{
+					message: { nest1: { nest2: { nest3: { email: testEmail, password: testPassword } } } },
+					result: { nest1: { nest2: { nest3: { email: mask, password: mask } } } }
+				},
+				// Multiple values nested differently
+				{
+					message: { nest1: { nest2: { email: testEmail, nest3: { password: testPassword } } } },
+					result: { nest1: { nest2: { email: mask, nest3: { password: mask } } } }
+				}
+			].forEach(({ message, result }) => {
+				it(`should mask ${JSON.stringify(message)}`, () => {
+					expect(logger.mask(message)).to.eql(result);
+				});
+			});
+		});
+
+		describe('values in arrays', () => {
+			[
+				// Single string
+				{
+					message: [ `email=${testEmail}` ],
+					result: [ `email=${mask}`]
+				},
+				// Multiple strings
+				{
+					message: [ `email=${testEmail}`, `password=${testPassword}` ],
+					result: [ `email=${mask}`, `password=${mask}` ]
+				},
+				// Single object
+				{
+					message: [ { email: testEmail } ],
+					result: [ { email: mask } ]
+				},
+				// Multiple objects
+				{
+					message: [ { email: testEmail }, { password: testPassword } ],
+					result: [ { email: mask }, { password: mask } ]
+				},
+				// Mixture
+				{
+					message: [ { email: testEmail }, `password=${testPassword}` ],
+					result: [ { email: mask }, `password=${mask}` ]
+				}
+			].forEach(({ message, result }) => {
+				it(`should mask ${JSON.stringify(message)}`, () => {
+					expect(logger.mask(message)).to.eql(result);
+				});
+			});
+		});
+	});
 });
