@@ -135,6 +135,13 @@ describe('MaskLogger', () => {
 			expect(original.nest1.nest2.nest3.email).to.equal(testEmail);
 		});
 
+		it('should mask errors with sensitive data', () => {
+			const error = new Error(`email=${testEmail}`);
+			expect(logger.mask(error)).to.contain({
+				message: `email=${mask}`
+			});
+		});
+
 		describe('values in strings', () => {
 			[
 				// Don't mask

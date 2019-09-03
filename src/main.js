@@ -147,6 +147,17 @@ class MaskLogger {
 				maskMessage[key] = this.mask(message[key]);
 			}
 		}
+
+		// Standard error properties are not iterable so add them separately
+		if (message instanceof Error) {
+			['name', 'message', 'fileName', 'lineNumber', 'columnNumber', 'stack'].forEach(item => {
+				const value = this.mask(message[item]);
+				if (value) {
+					maskMessage[item] = value;
+				}
+			});
+		}
+
 		return maskMessage;
 	}
 }
