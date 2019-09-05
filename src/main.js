@@ -25,6 +25,10 @@ class MaskLogger {
 			'primaryTelephone',
 			'postcode',
 			'session',
+			'sessionId',
+			'ft-session-id',
+			'FTSession_s',
+			'FTSession',
 			'ft-backend-key',
 			...denyList
 		];
