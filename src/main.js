@@ -18,7 +18,6 @@ class MaskLogger {
 		this.maskList = [
 			'email',
 			'password',
-			'name',
 			'firstName',
 			'lastName',
 			'phone',
