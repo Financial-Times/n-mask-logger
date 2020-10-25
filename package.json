@@ -11,7 +11,7 @@
     "prepare": "npx snyk protect || npx snyk protect -d || true"
   },
   "dependencies": {
-    "@financial-times/n-logger": "^6.0.1"
+    "@financial-times/n-logger": "^8.0.0"
   },
   "devDependencies": {
     "@financial-times/n-gage": "^5.0.0",
