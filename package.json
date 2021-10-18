@@ -9,7 +9,7 @@
   },
   "scripts": {
     "prepare": "npx snyk protect || npx snyk protect -d || true",
-    "preinstall": "[[ \"$INIT_CWD\" != \"$PWD\" ]] || npm_config_yes=true npx check-engine"
+    "preinstall": "[ \"$INIT_CWD\" != \"$PWD\" ] || npm_config_yes=true npx check-engine"
   },
   "dependencies": {
     "@financial-times/n-logger": "^6.0.1"
@@ -32,7 +32,7 @@
   },
   "engines": {
     "node": "12.x",
-    "npm": "7.x"
+    "npm": "7.x || 8.x"
   },
   "volta": {
     "node": "12.22.5",
