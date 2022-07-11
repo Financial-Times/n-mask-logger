@@ -12,7 +12,7 @@
     "preinstall": "[ \"$INIT_CWD\" != \"$PWD\" ] || npm_config_yes=true npx check-engine"
   },
   "dependencies": {
-    "@financial-times/n-logger": "^6.0.1"
+    "@financial-times/n-logger": "^10.2.0"
   },
   "devDependencies": {
     "@financial-times/n-gage": "^8.3.2",
