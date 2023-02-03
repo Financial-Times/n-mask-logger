@@ -10,7 +10,7 @@ references:
       - image: cimg/node:<< parameters.node-version >>
     parameters:
       node-version:
-        default: "16.17"
+        default: "18.13"
         type: string
 
   workspace_root: &workspace_root ~/project
@@ -148,14 +148,14 @@ workflows:
           name: build-v<< matrix.node-version >>
           matrix:
             parameters:
-              node-version: [ "18.9", "16.17", "14.20" ]
+              node-version: [ "18.13", "16.19", "14.21" ]
       - test:
           requires:
             - build-v<< matrix.node-version >>
           name: test-v<< matrix.node-version >>
           matrix:
             parameters:
-              node-version: [ "18.9", "16.17", "14.20" ]
+              node-version: [ "18.13", "16.19", "14.21" ]
 
   build-test-publish:
     jobs:
@@ -165,7 +165,7 @@ workflows:
           name: build-v<< matrix.node-version >>
           matrix:
             parameters:
-              node-version: [ "18.9", "16.17", "14.20" ]
+              node-version: [ "18.13", "16.19", "14.21" ]
       - test:
           filters:
             <<: *filters_version_tag
@@ -174,13 +174,13 @@ workflows:
           name: test-v<< matrix.node-version >>
           matrix:
             parameters:
-              node-version: [ "18.9", "16.17", "14.20" ]
+              node-version: [ "18.13", "16.19", "14.21" ]
       - publish:
           context: npm-publish-token
           filters:
             <<: *filters_version_tag
           requires:
-            - test-v16.17
+            - test-v18.13
 
   renovate-nori-build-test:
     jobs:
@@ -194,14 +194,14 @@ workflows:
           name: build-v<< matrix.node-version >>
           matrix:
             parameters:
-              node-version: [ "18.9", "16.17", "14.20" ]
+              node-version: [ "18.13", "16.19", "14.21" ]
       - test:
           requires:
             - build-v<< matrix.node-version >>
           name: test-v<< matrix.node-version >>
           matrix:
             parameters:
-              node-version: [ "18.9", "16.17", "14.20" ]
+              node-version: [ "18.13", "16.19", "14.21" ]
 
   nightly:
     triggers:
@@ -215,7 +215,7 @@ workflows:
           name: build-v<< matrix.node-version >>
           matrix:
             parameters:
-              node-version: [ "18.9", "16.17", "14.20" ]
+              node-version: [ "18.13", "16.19", "14.21" ]
       - test:
           requires:
             - build-v<< matrix.node-version >>
@@ -223,7 +223,7 @@ workflows:
           name: test-v<< matrix.node-version >>
           matrix:
             parameters:
-              node-version: [ "18.9", "16.17", "14.20" ]
+              node-version: [ "18.13", "16.19", "14.21" ]
 
 notify:
   webhooks:
