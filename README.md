@@ -1,3 +1,7 @@
+> **Warning**
+> 
+> We intend to deprecate n-mask-logger some time in 2023. It will continue to work for now, but **it should not be used in new projects**. The recommended replacement is [Reliability Kit logger](https://github.com/Financial-Times/dotcom-reliability-kit/tree/main/packages/logger#readme). There's a [blog post outlining the changes here](https://financialtimes.atlassian.net/l/cp/yzsAm35t).
+
 # n-mask-logger [![Circle CI](https://circleci.com/gh/Financial-Times/n-mask-logger.svg?style=svg)](https://circleci.com/gh/Financial-Times/n-mask-logger)
 
 Wrapper for [n-logger](https://github.com/Financial-Times/n-logger) that masks sensitive fields
