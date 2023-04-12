@@ -1,6 +1,8 @@
 > **Warning**
 > 
-> We intend to deprecate n-mask-logger some time in 2023. It will continue to work for now, but **it should not be used in new projects**. The recommended replacement is [Reliability Kit logger](https://github.com/Financial-Times/dotcom-reliability-kit/tree/main/packages/logger#readme). There's a [blog post outlining the changes here](https://financialtimes.atlassian.net/l/cp/yzsAm35t).
+> n-mask-logger has been deprecated as of **2023-04-17**. It will reach end-of-life on **2023-10-20** at which point no further security patches will be applied. The library will continue to work in currently-supported versions of Node.js but **it should not be used in new projects**. The recommended replacement is [Reliability Kit logger](https://github.com/Financial-Times/dotcom-reliability-kit/tree/main/packages/logger#readme).
+> 
+> [Further information is available in this blog post](https://financialtimes.atlassian.net/l/cp/ZgynW1RP).
 
 # n-mask-logger [![Circle CI](https://circleci.com/gh/Financial-Times/n-mask-logger.svg?style=svg)](https://circleci.com/gh/Financial-Times/n-mask-logger)
 
